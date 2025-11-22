@@ -44,7 +44,9 @@ const usePDF = ({
 	enableAnnotations = true,
 	spinLoadingImage = false,
 	scrollContainer,
-	viewer
+	viewer,
+	onFirstPageLoaded,
+	onLoaded
 }: IUsePDF): TUsePDF => {
 	const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy>();
 	const [pages, setPages] = useState<(ReactElement<IPDFPage> | undefined)[]>([]);
@@ -57,6 +59,7 @@ const usePDF = ({
 	const pageRendering = useRef(false);
 	const docLoaded = useRef(false);
 	const oldHeightRef = useRef<number | null>(null);
+	const renderedPagesRef = useRef<Set<number>>(new Set());
 
 	const processQueue = useMemo(() => _.debounce(async () => {
 		const renderPage = async (num: number) => {
@@ -149,6 +152,16 @@ const usePDF = ({
 								</PDFPage>
 							);
 						}));
+
+						renderedPagesRef.current.add(num);
+						//Trigger onFirstPageLoaded
+						if (num === 1 && onFirstPageLoaded) {
+							onFirstPageLoaded();
+						}
+						//Trigger onLoaded (Complete)
+						if (pdfDoc && renderedPagesRef.current.size === pdfDoc.numPages && onLoaded) {
+							onLoaded();
+						}
 					}
 					catch (e) {
 						console.error(e);

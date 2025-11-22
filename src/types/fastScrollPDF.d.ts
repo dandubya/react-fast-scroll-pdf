@@ -26,7 +26,9 @@ export interface IUsePDF {
 	spinLoadingImage?: boolean,
 	enableAnnotations?: boolean,
 	viewer?: HTMLDivElement | null,
-	scrollContainer?: HTMLDivElement | null
+	scrollContainer?: HTMLDivElement | null,
+	onFirstPageLoaded?: () => void,
+	onLoaded?: () => void,
 }
 
 export type TUsePDF = {
